@@ -1,0 +1,89 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+#import dataset
+library(dplyr)
+
+
+inj <- read.csv("/Users/jianingyi/Documents/Documents - Jenny Yi’s MacBook Air/mssp/ma676/consulting/Final Data/rr179_Henry_injuries1419.csv")
+exp <- read.csv("/Users/jianingyi/Documents/Documents - Jenny Yi’s MacBook Air/mssp/ma676/consulting/Final Data/rr179_Henry_exposures1419.csv")
+merge_keys <- c("Record_UID_Exp","TeamKey", "Year","Sport","Event_Type","Season")
+md <- inj %>%
+  full_join(exp, by = merge_keys )
+colnames(md)
+# data cleaning
+md_cleaned <- na.omit(md)
+head(md_cleaned)
+colnames(md_cleaned)
+```
+```{r}
+#visualization
+library(tidyverse)
+  
+## add error bars
+# relationship between nature of injury and specific sports
+ggplot(md_cleaned, aes(x = Sport, fill = Injury_or_Illness_Code)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Nature of Injuries Across Different Sports",
+       x = "Sport Type",
+       y = "Proportion of Injury Nature") + 
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+
+# 2.What sports have the most facial traumas? --the frequency of injuries in correlation with various types of sports
+ggplot(md_cleaned, aes(x = Sport)) + 
+  geom_bar() + 
+  labs(title = "Frequency of Injuries in Various Sports",
+       x = "Sport Type",
+       y = "Count of Injuries") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+# 1. What is the most common facial trauma? --
+ggplot(md_cleaned, aes(x = Injury_or_Illness_Code)) + 
+  geom_bar() + 
+  labs(title = "Frequency of Injuries",
+       x = "Injury Type",
+       y = "Count of Injuries") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+#5. What is the mechanism of injury of facial traumas & relationship? --the distribution of mechanisms of facial trauma
+##facial injuries Across Different Specific Mechanisms
+ggplot(md_cleaned, aes(x =Injury_or_Illness_Code , fill = Injev_Specific_Mechanism)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Specific Mechanisms Across Different facial injuries",
+       x = "Injury Type",
+       y = "Proportion of Specific Mechanisms") + 
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+##facial injuries Across Different Basic Mechanisms
+ggplot(md_cleaned, aes(x =Injury_or_Illness_Code , fill = Injev_Basic_Mechanism)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Basic Mechanisms Across Different facial injuries",
+       x = "Injury Type",
+       y = "Proportion of Basic Mechanisms") + 
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+##divergent color 
+```
+```{r}
+#2.What sports have the most facial traumas? 
+#basketball-men
+#1.What is the most common facial trauma? 
+#facial contusion
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
