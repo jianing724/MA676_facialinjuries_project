@@ -3,17 +3,17 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*.
 
 ```{r}
 #import dataset
 library(dplyr)
+library(viridis)
 
-
-inj <- read.csv("/Users/jianingyi/Documents/Documents - Jenny Yi’s MacBook Air/mssp/ma676/consulting/Final Data/rr179_Henry_injuries1419.csv")
-exp <- read.csv("/Users/jianingyi/Documents/Documents - Jenny Yi’s MacBook Air/mssp/ma676/consulting/Final Data/rr179_Henry_exposures1419.csv")
+inj <- read.csv("Final Data/rr179_Henry_injuries1419.csv")
+exp <- read.csv("Final Data/rr179_Henry_exposures1419.csv")
 merge_keys <- c("Record_UID_Exp","TeamKey", "Year","Sport","Event_Type","Season")
 md <- inj %>%
   full_join(exp, by = merge_keys )
@@ -23,28 +23,30 @@ md_cleaned <- na.omit(md)
 head(md_cleaned)
 colnames(md_cleaned)
 ```
+
+```{r}
+md_cleaned <- md_cleaned %>%
+  group_by(Sport) %>%
+  mutate(total_num = sum(Num_Athletes)) %>%
+  mutate(ratio = Num_Athletes / total_num)  
+head(md_cleaned)
+```
+
+```{r}
+##custom color
+custom_colors_25 <- c("#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", 
+                      "#911EB4", "#46F0F0", "#F032E6", "#BCF60C", "#FABEBE", 
+                      "#008080", "#E6BEFF", "#9A6324", "#FFFAC8", "#800000", 
+                      "#AAFFC3", "#808000", "#FFD8B1", "#000075", "#808080",
+                      "#000000", "#FF0000", "#00FF00", "#0000FF", "#FF00FF")
+
+```
+
+
 ```{r}
 #visualization
 library(tidyverse)
-  
-## add error bars
-# relationship between nature of injury and specific sports
-ggplot(md_cleaned, aes(x = Sport, fill = Injury_or_Illness_Code)) + 
-  geom_bar(position = "fill") + 
-  labs(title = "Nature of Injuries Across Different Sports",
-       x = "Sport Type",
-       y = "Proportion of Injury Nature") + 
-  theme_minimal()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 
-# 2.What sports have the most facial traumas? --the frequency of injuries in correlation with various types of sports
-ggplot(md_cleaned, aes(x = Sport)) + 
-  geom_bar() + 
-  labs(title = "Frequency of Injuries in Various Sports",
-       x = "Sport Type",
-       y = "Count of Injuries") + 
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 # 1. What is the most common facial trauma? --
 ggplot(md_cleaned, aes(x = Injury_or_Illness_Code)) + 
   geom_bar() + 
@@ -53,37 +55,126 @@ ggplot(md_cleaned, aes(x = Injury_or_Illness_Code)) +
        y = "Count of Injuries") + 
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-#5. What is the mechanism of injury of facial traumas & relationship? --the distribution of mechanisms of facial trauma
-##facial injuries Across Different Specific Mechanisms
-ggplot(md_cleaned, aes(x =Injury_or_Illness_Code , fill = Injev_Specific_Mechanism)) + 
-  geom_bar(position = "fill") + 
-  labs(title = "Specific Mechanisms Across Different facial injuries",
-       x = "Injury Type",
-       y = "Proportion of Specific Mechanisms") + 
-  theme_minimal()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
-##facial injuries Across Different Basic Mechanisms
-ggplot(md_cleaned, aes(x =Injury_or_Illness_Code , fill = Injev_Basic_Mechanism)) + 
-  geom_bar(position = "fill") + 
-  labs(title = "Basic Mechanisms Across Different facial injuries",
-       x = "Injury Type",
-       y = "Proportion of Basic Mechanisms") + 
-  theme_minimal()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
-##divergent color 
 ```
-```{r}
-#2.What sports have the most facial traumas? 
-#basketball-men
-#1.What is the most common facial trauma? 
-#facial contusion
 
+
+```{r}
+## add error bars
+# relationship between nature of injury and specific sports
+
+custom_colors_25 <- c("#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", 
+                      "#911EB4", "#46F0F0", "#F032E6", "#BCF60C", "#FABEBE", 
+                      "#008080", "#E6BEFF", "#9A6324", "#FFFAC8", "#800000", 
+                      "#AAFFC3", "#808000", "#FFD8B1", "#000075", "#808080",
+                      "#000000", "#FF0000", "#00FF00", "#0000FF", "#FF00FF")
+
+## add error bars
+# relationship between nature of injury and specific sports
+ggplot(md_cleaned, aes(x = Sport, fill = Injury_or_Illness_Code)) + 
+  geom_bar(position = "fill") + 
+  scale_fill_manual(values = custom_colors_25) +
+  labs(title = "Nature of Injuries Across Different Sports",
+       x = "Sport Type",
+       y = "Proportion of Injury Nature") + 
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+```{r}
+# 2.What sports have the most facial traumas? --the frequency of injuries in correlation with various types of sports
+ggplot(md_cleaned, aes(x = Sport)) + 
+  geom_bar() + 
+  labs(title = "Frequency of Injuries in Various Sports",
+       x = "Sport Type",
+       y = "Count of Injuries") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+
+
+
+#5. What is the mechanism of injury of facial traumas & relationship? --the distribution of mechanisms of facial trauma
+##facial injuries Across Different Basic Mechanisms
+library(ggplot2)
+library(dplyr)
+
+# Create a new variable for categorizing injuries
+md_cleaned <- md_cleaned %>%
+  mutate(Injury_Group = case_when(
+    Injury_or_Illness_Code %in% c("Head Contusion (Not Face)", "Scalp Laceration", "Other Injury to Head") ~ "Head",
+    Injury_or_Illness_Code %in% c("Conjunctivitis", "Corneal Abrasion", "Eyelid Laceration", "Swollen Retina", "Other Eye Injury") ~ "Eye",
+    Injury_or_Illness_Code %in% c("Cheekbone Fracture", "Facial Abrasion", "Facial Contusion", "Facial Laceration", "Jaw Contusion", "Soft Tissue Contusion") ~ "Face",
+    Injury_or_Illness_Code %in% c("Mouth Contusion", "Teeth Shifting", "Tongue Laceration", "Tooth Fracture/Avulsion") ~ "Mouth",
+    Injury_or_Illness_Code %in% c("Nasal Contusion", "Nasal Fracture", "Nose Laceration", "Other Nose Injury","Epistaxis") ~ "Nose",
+    TRUE ~ "Other" # This will categorize any injury not listed above as 'Other'
+  ))
+
+# Plot using the new Injury_Group variable
+ggplot(md_cleaned, aes(x = Injury_Group, fill = Injev_Basic_Mechanism)) + 
+  geom_bar(position = "fill") + 
+  scale_fill_manual(values = custom_colors_25) +
+  labs(title = "Basic Mechanisms Across Different facial injuries",
+       x = "Injury regions",
+       y = "Proportion of Basic Mechanisms") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8),
+        legend.text = element_text(size = 6),
+        plot.title = element_text(size = rel(0.7)))
+
+```
+
+```{r}
+unique(md_cleaned$Injury_or_Illness_Code)
+```
+
+
+```{r}
+# 6.Is there an association between specific sport and resulting injury? 
+# Install and load necessary packages
+
+library(nnet)
+
+# Create a gender variable based on the last character of the Sport variable
+md_cleaned$Gender <- ifelse(substring(md_cleaned$Sport, nchar(md_cleaned$Sport), nchar(md_cleaned$Sport)) == "M", "Men", "Women")
+md_cleaned$Gender <- factor(md_cleaned$Gender)
+# Remove '-M' and '-W' from the 'Sport' column
+md_cleaned$Sport <- gsub("-M|-W", "", md_cleaned$Sport)
+#Filter sports that have more than one gender
+gender_count_by_sport <- aggregate(Gender ~ Sport, data = md_cleaned, FUN = function(x) length(unique(x)))
+sports_with_both_genders <- gender_count_by_sport$Sport[gender_count_by_sport$Gender > 1]
+md_cleaned <- md_cleaned[md_cleaned$Sport %in% sports_with_both_genders, ]
+
+
+md_cleaned$Sport <- factor(md_cleaned$Sport)
+md_cleaned$Event_Type <- factor(md_cleaned$Event_Type)
+md_cleaned$Surface <- factor(md_cleaned$Surface)
+
+# Fit the multinomial logistic regression model
+multinom_model <- multinom(Injury_or_Illness_Code ~ Sport + Sport * Gender + Gender + Event_Type + Surface, data = md_cleaned)
+
+# Summarize the model
+summary(multinom_model)
+```
+
+
+```{r}
+# Perform a likelihood ratio test
+# Fit a reduced model without the Sport variable to compare
+reduced_model <- multinom(Injury_or_Illness_Code ~ Gender + Event_Type + Surface, data = md_cleaned)
+
+# Perform the likelihood ratio test
+lr_test <- anova( reduced_model, multinom_model)
+
+# Output the results of the likelihood ratio test
+print(lr_test)
 
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
-
